@@ -1,23 +1,11 @@
 # Green-Time
-A browser plugin to help people better use their time. It aims to use a kinder approach by not blocking the pages, but just reminding to the user when they visit the pages. So the user gives the final decision of leaving a page, so they are not faced with an external force.
+A browser plugin to help people better use their time. It aims to use a gentle approach by not blocking the pages directly, but just warning the user before visiting the pages. So the user gives the final decision of leaving a page, so they are not faced with an external force.
 
 ## Getting Started
 
-> firstly you need [npm](https://nodejs.org/en/)  & [bower](http://bower.io/) & [gulp](https://github.com/gulpjs/gulp/blob/master/docs/getting-started.md)
+Open "about:debugging" in Firefox, click "Load Temporary Add-on" and select any file in your extension's directory (See video [here](https://www.youtube.com/watch?v=cer9EUKegG4))
 
-1. Clone the repository
-2. Run your favorite command line
-3. Enter the ~/Green-Time/development/ folder
-  1. Run " npm update " command,
-  2. Run " bower update " command,
-  3. Run " gulp " command,
-  4. Now you have ~/Green-Time/product folder.
-4. Go to **chrome://extensions/** link on your browser and check **developer mode** option at top of the page then click the **load unpacked extension** button
-  1. You can set ~/Green-Time/product/ folder for chrome extension package folder
-  2. Note : **[Extensions Reloader](https://chrome.google.com/webstore/detail/extensions-reloader/fimgfedafeadlieiabdeeaodndnlbhid/)** extension very useful for development workflow. Every code changes need to reload for test on chrome and the reloading easier with this extension
-5. Now you ready for contributing.
-
-Please feel free for contacting us.
+Please feel free to contact us.
 
 ## ToDo-List
 
@@ -33,6 +21,7 @@ Please feel free for contacting us.
 - [ ] URL-List Customization
   - [X] Single list
   - [ ] Multi list
+  - [ ] Adding url by browser action
 - [ ] Modal Customization
   - [ ] OK-button
   - [ ] Continue/Cancel
