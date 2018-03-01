@@ -17,11 +17,11 @@ var BlockList = function () {
 
   // Private Methods [3]
   /*
-   * loadStorage : load stored data from chrome api and set to the _list
+   * loadStorage : load stored data from browser api and set to the _list
    * @return filled or empty array
    */
   var loadStorage = function () {
-    chrome.storage.sync.get("blockList", function (data) {
+    browser.storage.sync.get("blockList", function (data) {
       if (Util.isEmpty(data)) {
         console.warn("Null blocked domain list");
         return [];
@@ -87,7 +87,7 @@ var BlockList = function () {
       tempList = [];
     }
     tempList.push(domain);
-    chrome.storage.sync.set({"blockList": tempList}, function () {
+    browser.storage.sync.set({"blockList": tempList}, function () {
       _list.push(domain);
       loadStorage();
       console.info("Added");
@@ -112,7 +112,7 @@ var BlockList = function () {
     }
     _list[indexOfDomain.index] = domain;
 
-    chrome.storage.sync.set({"blockList": _list}, function () {
+    browser.storage.sync.set({"blockList": _list}, function () {
       console.info("Updated");
     });
     return true;
@@ -132,7 +132,7 @@ var BlockList = function () {
   this.clear = function (areYouDrunk) {
     if (!Util.isEmpty(areYouDrunk) && areYouDrunk.toString() == "Nope") {
       _list = [];
-      chrome.storage.sync.set({"blockList": _list}, function () {
+      browser.storage.sync.set({"blockList": _list}, function () {
         console.info("Cleaned");
       });
       return true;
@@ -201,12 +201,12 @@ var Domain = function (_url, _waitTime, _category) {
 
 
 document.addEventListener('DOMContentLoaded', function() {
-  chrome.tabs.onCreated.addListener(tabCreate);
-  
-  chrome.tabs.onUpdated.addListener(tabUpdate);
-  
-  chrome.runtime.onMessage.addListener(handleMessage);
-  
+  browser.tabs.onCreated.addListener(tabCreate);
+
+  browser.tabs.onUpdated.addListener(tabUpdate);
+
+  browser.runtime.onMessage.addListener(handleMessage);
+
   initialize();
-  
+
 });

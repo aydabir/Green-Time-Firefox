@@ -67,7 +67,7 @@ function handleMessage(request, sender, sendResponse){
 // a general function to restore options
 // it is called at initialization
 function load_options() {
-  chrome.storage.sync.get({
+  browser.storage.sync.get({
     urlList: urlList,
 		daytimeList: daytimeList
   }, function(items) {
@@ -141,7 +141,7 @@ function filterDaytime() {
 // Show green-pass.html in the tab
 function bringGreenPass(tab){
   // Show the green-pass view
-  chrome.tabs.update(tab.id, {url: "./views/green-pass.html"});
+  browser.tabs.update(tab.id, {url: "./views/green-pass.html"});
   // record passUrl to inform green-pass later
   passUrlList[tab.id] = tab.url;
 }
@@ -169,7 +169,7 @@ function sendGreenPassUrl(tabId){
     return;
   }
   // inform Green-pass
-  chrome.tabs.sendMessage(tabId, {passUrl: passUrlList[tabId]});
+  browser.tabs.sendMessage(tabId, {passUrl: passUrlList[tabId]});
 }
 
 // updates the options with the option values coming with message
@@ -210,10 +210,10 @@ var plugin = {
 
   /*
    * beforeEnter
-   * Each request pass here on complated stage
+   * Each request pass here on completed stage
    */
-  onComplated: function(context) {
-    log('onComplated event is fired : ' + context.tab.url, 'warn');
+  onCompleted: function(context) {
+    log('onCompleted event is fired : ' + context.tab.url, 'warn');
   }
 
 };

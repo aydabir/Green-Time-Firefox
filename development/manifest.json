@@ -10,7 +10,6 @@
     "128": "./resources/images/icons/icon128.png"
   },
   "background": {
-    "persistent": true,
     "scripts": [
       "./scripts/core/background.js",
       "./scripts/extend/background.js"
@@ -18,7 +17,7 @@
   },
   "options_ui": {
     "page": "./views/options.html",
-    "chrome_style": true
+    "browser_style": true
   },
   "browser_action": {
     "default_icon": "./resources/images/icons/icon19.png",
@@ -26,7 +25,6 @@
     "default_popup": "./views/action.html"
   },
   "permissions": [
-    "contentSettings",
     "cookies",
     "tabs",
     "storage",

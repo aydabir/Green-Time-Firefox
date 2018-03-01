@@ -1,13 +1,11 @@
 console.info('Options is loaded');
 
-
 var blockList = new BlockList(); // TODO: Not used anywhere
 
-// more or less what is taken from https://developer.chrome.com/extensions/optionsV2 :)
 var urlList = [];
 var daytimeList = [];
 
-// Saves options to chrome.storage.sync
+// Saves options to browser.storage.sync
 function save_options() {
 	var strUrls = document.getElementById('urlList').value;
 
@@ -29,7 +27,7 @@ function save_options() {
 		urlList: urlList,
 		daytimeList: intervals
 	};
-	chrome.storage.sync.set(items, function () {
+	browser.storage.sync.set(items, function () {
 		// Update status to let user know options were saved.
 		var status = document.getElementById('status');
 		status.textContent = 'Options saved.';
@@ -39,18 +37,18 @@ function save_options() {
 	});
 
 	// update bg options via message
-	chrome.runtime.sendMessage({topic: "update options", options: items});
+	browser.runtime.sendMessage({topic: "update options", options: items});
 	// log the bg console
-	chrome.runtime.sendMessage({topic: "console log", log: "options saved"});
+	browser.runtime.sendMessage({topic: "console log", log: "options saved"});
 }
 
 // Restores select box and checkbox state using the preferences
-// stored in chrome.storage.sync
+// stored in browser.storage.sync
 function handleDomLoaded() {
 	// start listening the save button
 	document.getElementById('save').addEventListener('click', save_options);
 
-	chrome.storage.sync.get({
+	browser.storage.sync.get({
 		urlList: urlList,
 		daytimeList: daytimeList
 	}, function (items) {
@@ -62,11 +60,11 @@ function handleDomLoaded() {
 
 		document.getElementById('urlList').value = strUrls;
 		// update the bg options
-		chrome.runtime.sendMessage({topic: "update options", options: items});
+		browser.runtime.sendMessage({topic: "update options", options: items});
 
 	});
 	// log the bg console
-	chrome.runtime.sendMessage({topic: "console log", log: "options loaded"});
+	browser.runtime.sendMessage({topic: "console log", log: "options loaded"});
 }
 
 // parses the str into array of urls
@@ -122,7 +120,7 @@ function parseHour(strTime) {
 
 	if (strTime.length < 3 || strTime.length > 4) {
 		// log the bg console
-		chrome.runtime.sendMessage({topic: "console log", log: "Inappropriate time: " + strTime});
+		browser.runtime.sendMessage({topic: "console log", log: "Inappropriate time: " + strTime});
 		return false;
 	}
 
@@ -142,7 +140,7 @@ function parseHour(strTime) {
 		minute: parseInt(strMinute)
 	};
 
-	chrome.runtime.sendMessage({topic: "console log", log: "time: " + time.hour + "." + time.minute});
+	browser.runtime.sendMessage({topic: "console log", log: "time: " + time.hour + "." + time.minute});
 
 	return time;
 }
