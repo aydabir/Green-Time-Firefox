@@ -67,7 +67,7 @@ function handleMessage(request, sender, sendResponse){
 // a general function to restore options
 // it is called at initialization
 function load_options() {
-  browser.storage.sync.get({
+  browser.storage.local.get({
     urlList: urlList,
 		daytimeList: daytimeList
   }, function(items) {

@@ -27,14 +27,16 @@ function save_options() {
 		urlList: urlList,
 		daytimeList: intervals
 	};
-	browser.storage.sync.set(items, function () {
-		// Update status to let user know options were saved.
-		var status = document.getElementById('status');
-		status.textContent = 'Options saved.';
-		setTimeout(function () {
-			status.textContent = '';
-		}, 1000);
-	});
+
+
+	browser.storage.local.set(items);
+
+	// Update status to let user know options were saved.
+	var status = document.getElementById('status');
+	status.textContent = 'Options saved.';
+	setTimeout(function () {
+		status.textContent = '';
+	}, 1500);
 
 	// update bg options via message
 	browser.runtime.sendMessage({topic: "update options", options: items});
@@ -48,7 +50,7 @@ function handleDomLoaded() {
 	// start listening the save button
 	document.getElementById('save').addEventListener('click', save_options);
 
-	browser.storage.sync.get({
+	browser.storage.local.get({
 		urlList: urlList,
 		daytimeList: daytimeList
 	}, function (items) {

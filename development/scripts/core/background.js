@@ -21,7 +21,7 @@ var BlockList = function () {
    * @return filled or empty array
    */
   var loadStorage = function () {
-    browser.storage.sync.get("blockList", function (data) {
+    browser.storage.local.get("blockList", function (data) {
       if (Util.isEmpty(data)) {
         console.warn("Null blocked domain list");
         return [];
@@ -87,7 +87,7 @@ var BlockList = function () {
       tempList = [];
     }
     tempList.push(domain);
-    browser.storage.sync.set({"blockList": tempList}, function () {
+    browser.storage.local.set({"blockList": tempList}, function () {
       _list.push(domain);
       loadStorage();
       console.info("Added");
@@ -112,7 +112,7 @@ var BlockList = function () {
     }
     _list[indexOfDomain.index] = domain;
 
-    browser.storage.sync.set({"blockList": _list}, function () {
+    browser.storage.local.set({"blockList": _list}, function () {
       console.info("Updated");
     });
     return true;
@@ -132,7 +132,7 @@ var BlockList = function () {
   this.clear = function (areYouDrunk) {
     if (!Util.isEmpty(areYouDrunk) && areYouDrunk.toString() == "Nope") {
       _list = [];
-      browser.storage.sync.set({"blockList": _list}, function () {
+      browser.storage.local.set({"blockList": _list}, function () {
         console.info("Cleaned");
       });
       return true;
