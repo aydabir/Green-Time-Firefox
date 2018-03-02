@@ -141,7 +141,7 @@ function filterDaytime() {
 // Show green-pass.html in the tab
 function bringGreenPass(tab){
   // Show the green-pass view
-  browser.tabs.update(tab.id, {url: "./views/green-pass.html"});
+  browser.tabs.update(tab.id, {url: "green-pass.html"});
   // record passUrl to inform green-pass later
   passUrlList[tab.id] = tab.url;
 }
