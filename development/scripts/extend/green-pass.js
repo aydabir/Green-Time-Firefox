@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	// Leave Button
   var leaveBtn = document.getElementById('btnLeave');
   leaveBtn.addEventListener('click', function() {
-      window.close();
+		browser.runtime.sendMessage({topic:"close tab"});
   });
 	// Visit Button
 	var visitBtn = document.getElementById('btnVisit');

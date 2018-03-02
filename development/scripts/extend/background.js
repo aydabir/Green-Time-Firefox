@@ -59,6 +59,10 @@ function handleMessage(request, sender, sendResponse){
       sendGreenPassUrl(sender.tab.id);
       break;
 
+    case "close tab":
+      closeTab(sender.tab.id);
+      break;
+
     default:
       console.log("BG message request.topic is not understood!");
   }
@@ -159,6 +163,17 @@ function startWaiting(time){
 function endWaiting(){
   console.log("Waiting has ended");
   isWaiting = false;
+}
+
+// Closes the current tab. Firefox doesn't permit closing by page script
+function closeTab(tabId) {
+  // undefined?
+  if (!tabId) {
+    console.log("Closed tab id is undefined!");
+    return;
+  }
+	// Close it
+  browser.tabs.remove(tabId);
 }
 
 // sends green-pass page the url to direct, if user choses to 'visit'
