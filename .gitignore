@@ -4,9 +4,8 @@ logs
 npm-debug.log*
 .idea/
 product/
-./development/node_modules/
-./development/thirdparty
-./development/manifest.json
+./node_modules/**
+
 # Runtime data
 pids
 *.pid
@@ -34,7 +33,6 @@ local/**
 build/Release
 
 # Dependency directories
-node_modules
 jspm_packages
 
 # Optional npm cache directory
