@@ -1,7 +1,5 @@
 console.info('Options is loaded');
 
-var blockList = new BlockList(); // TODO: Not used anywhere
-
 var urlList = [];
 var daytimeList = [];
 

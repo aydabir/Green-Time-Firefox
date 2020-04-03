@@ -7,31 +7,12 @@ var BlockList = function () {
   "use strict";
 
   // Private Variables [1]
-  var _list = [];
+  var _urlList = [];
+  var _daytimeList = [];
 
-  // Private Methods [3]
+
   /*
-   * loadStorage : load stored data from browser api and set to the _list
-   * @return filled or empty array
-   */
-  var loadStorage = function () {
-    browser.storage.local.get("blockList", function (data) {
-      if (Util.isEmpty(data)) {
-        console.warn("Null blocked domain list");
-        return [];
-      } else {
-        _list = data.blockList;
-        return {
-          "list": data.blockList
-        };
-      }
-    });
-  };
-  var constructor = (function () {
-    loadStorage();
-  })();
-  /*
-   * find : it's return index of the founded domain if it's fail will be return false
+   * find : returns index of the found domain if it fails will return false
    * @param domain : it must be instance of Domain
    */
   var find = function (domain) {
@@ -40,7 +21,7 @@ var BlockList = function () {
       console.error("Domain is not valid");
       return false;
     }
-    var _index = _.findIndex(_list, {url: domain.url});
+    var _index = _.findIndex(_urlList, {url: domain.url});
     var result = {index: _index, status: parseInt(_index) !== parseInt(-1) ? true : false};
     return result;
   };
@@ -49,19 +30,41 @@ var BlockList = function () {
 
   // Public Methods [4]
   /*
-   * getList : it's return the _list
-   * @return empty array or the _list
+   * getUrlList : returns the _urlList
+   * @return empty array or the _urlList
    */
-  this.getList = function () {
-    if (Util.isEmpty(_list)) {
-      console.warn("Null blocked domain list");
+  this.getUrlList = function () {
+    if (Util.isEmpty(_urlList)) {
+      console.warn("Empty blocked domain list");
       return [];
     } else {
-      return _list;
+      return _urlList;
     }
   };
+
+  /**
+   *
+   * @param newList
+   */
+  this.setUrlList = function (newList) {
+    _urlList = newList;
+  };
+
+  this.getDaytimeList = function () {
+      if (Util.isEmpty(_daytimeList)) {
+          console.warn("Null daytime list");
+          return [];
+      } else {
+          return _daytimeList;
+      }
+  };
+
+  this.setDaytimeList = function (newList) {
+    _daytimeList = newList;
+  };
+
   /*
-   addaddDomain : it's add a new domain to the _list
+   addDomain : adds a new domain to the _urlList
    @param domain : must be instance of the Domain object
    @return boolean
    */
@@ -75,21 +78,22 @@ var BlockList = function () {
       return false;
     }
     var tempList;
-    if (_list.length > 0) {
-      tempList = this.getList();
+    if (_urlList.length > 0) {
+      tempList = this.getUrlList();
     } else {
       tempList = [];
     }
     tempList.push(domain);
     browser.storage.local.set({"blockList": tempList}, function () {
-      _list.push(domain);
+      _urlList.push(domain);
       loadStorage();
       console.info("Added");
     });
     return true;
   };
+
   /*
-   updateDomain : it's update given domain from the _list
+   updateDomain : updates given domain from the _urlList
    @param domain : must be instance of the Domain object
    @return boolean
    */
@@ -101,32 +105,34 @@ var BlockList = function () {
 
     var indexOfDomain = find(domain);
     if (!indexOfDomain.status) {
-      console.error("given domain doesn't exist on the _list");
+      console.error("given domain doesn't exist on the _urlList");
       return false;
     }
-    _list[indexOfDomain.index] = domain;
+    _urlList[indexOfDomain.index] = domain;
 
-    browser.storage.local.set({"blockList": _list}, function () {
+    browser.storage.local.set({"blockList": _urlList}, function () {
       console.info("Updated");
     });
     return true;
   };
+
   /*
-   view : it's print a fancy table of the _list on the console
+   view : it's print a fancy table of the _urlList on the console
    @return void
    */
   this.view = function () {
-    console.table(blockList.getList());
+    console.table(blockList.getUrlList());
   };
+
   /*
-   clear : clear all domains in _list
+   clear : clear all domains in _urlList
    @param areYouDrunk : you must provide you're not drunk
    @return boolean
    */
   this.clear = function (areYouDrunk) {
     if (!Util.isEmpty(areYouDrunk) && areYouDrunk.toString() == "Nope") {
-      _list = [];
-      browser.storage.local.set({"blockList": _list}, function () {
+      _urlList = [];
+      browser.storage.local.set({"blockList": _urlList}, function () {
         console.info("Cleaned");
       });
       return true;
@@ -138,25 +144,6 @@ var BlockList = function () {
   }
 
 };
-
-/*
- * Util : some helper functions
- */
-var Util = {
-  /*
-   isEmpty : check the given object is empty,null or undefined
-   @return boolean
-   */
-  isEmpty: function (value) {
-    if (typeof value == "string") value = value.trim();
-    return value == null ||
-        value === '' ||
-        value === undefined ||
-        value === null ||
-        Object.keys(value).length === 0;
-  }
-};
-
 /*
  Domain : blueprint of domains
  @param paramUrl : the web url of the website
@@ -191,3 +178,29 @@ var Domain = function (_url, _waitTime, _category) {
     totalVisitTime: 0
   }
 };
+
+var BlockData = function () {
+
+    // Private Methods [3]
+    /*
+     * loadStorage : load stored data from browser api and set to the _list
+     * @return filled or empty array
+     */
+    var loadStorage = function () {
+        browser.storage.local.get("blockList", function (data) {
+            if (Util.isEmpty(data)) {
+                console.warn("Null blocked domain list");
+                return [];
+            } else {
+                _list = data.blockList;
+                return {
+                    "list": data.blockList
+                };
+            }
+        });
+    };
+    var constructor = (function () {
+        loadStorage();
+    })();
+
+}

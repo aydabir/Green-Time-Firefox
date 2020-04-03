@@ -12,7 +12,7 @@
   "background": {
     "scripts": [
       "./scripts/core/background.js",
-      "./scripts/core/block-list.js"
+      "./scripts/core/block-list.js",
       "./scripts/extend/background.js"
     ]
   },

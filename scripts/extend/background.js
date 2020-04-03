@@ -3,13 +3,18 @@ console.info('Background is loaded');
 // Properties of background script
 var isWaiting = false; // waiting now? control variable
 var minuteMultiplier = 60*1000; // bekleme süresi: 5 dakika
+
 // TODO: Waiting time options
-var urlList = ["facebook.com"];
+var blockList = new BlockList();
+
 var passUrlList = [];
-var daytimeList = [];
 
 // This function is called once in the start of the browser
 function initialize(){
+  // default values (in case of the first run)
+  blockList.setUrlList(["facebook.com"])
+  blockList.setDaytimeList([{from:"00:00", to:"23:59"}]);
+
   load_options();
 }
 

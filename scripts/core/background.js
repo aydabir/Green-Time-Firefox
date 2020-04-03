@@ -7,6 +7,23 @@
 
 
 
+/*
+ * Util : some helper functions
+ */
+var Util = {
+  /*
+   isEmpty : check the given object is empty,null or undefined
+   @return boolean
+   */
+  isEmpty: function (value) {
+    if (typeof value == "string") value = value.trim();
+    return value == null ||
+        value === '' ||
+        value === undefined ||
+        value === null ||
+        Object.keys(value).length === 0;
+  }
+};
 
 document.addEventListener('DOMContentLoaded', function() {
   browser.tabs.onCreated.addListener(tabCreate);
