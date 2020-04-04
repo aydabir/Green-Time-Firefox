@@ -1,3 +1,4 @@
+console.info('BlockList is loaded');
 
 /*
  BlockList : blueprint for the BlockList
@@ -9,7 +10,6 @@ var BlockList = function () {
   // Private Variables [1]
   var _urlList = [];
   var _daytimeList = [];
-
 
   /*
    * find : returns index of the found domain if it fails will return false
@@ -52,7 +52,7 @@ var BlockList = function () {
 
   this.getDaytimeList = function () {
       if (Util.isEmpty(_daytimeList)) {
-          console.warn("Null daytime list");
+          console.warn("Empty daytime intervals list");
           return [];
       } else {
           return _daytimeList;
@@ -78,13 +78,13 @@ var BlockList = function () {
       return false;
     }
     var tempList;
-    if (_urlList.length > 0) {
+    if (!Utils.isEmpty(_urlList)) {
       tempList = this.getUrlList();
     } else {
       tempList = [];
     }
     tempList.push(domain);
-    browser.storage.local.set({"blockList": tempList}, function () {
+    browser.storage.local.set({"urlList": tempList}, function () {
       _urlList.push(domain);
       loadStorage();
       console.info("Added");
@@ -187,9 +187,9 @@ var BlockData = function () {
      * @return filled or empty array
      */
     var loadStorage = function () {
-        browser.storage.local.get("blockList", function (data) {
+        browser.storage.local.get("urlList", function (data) {
             if (Util.isEmpty(data)) {
-                console.warn("Null blocked domain list");
+                console.warn("Empty blocked domain list");
                 return [];
             } else {
                 _list = data.blockList;

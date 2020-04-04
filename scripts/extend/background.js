@@ -2,7 +2,7 @@ console.info('Background is loaded');
 
 // Properties of background script
 var isWaiting = false; // waiting now? control variable
-var minuteMultiplier = 60*1000; // bekleme süresi: 5 dakika
+var minuteMultiplier = 60*1000; // waiting time multiplier: 1 minute
 
 // TODO: Waiting time options
 var blockList = new BlockList();
@@ -23,7 +23,6 @@ function tabUpdate(tabId, changeInfo, tab){
   console.log("onUpdated "+tab.url);
   // check if the page should be filtered
   doFilter = filterTab(tab);
-  console.log(tabId);
   // show green-pass if it does
   if(doFilter){
     bringGreenPass(tab);
@@ -206,7 +205,8 @@ function updateOptions(options){
     return;
   }
   // assign bg variables
-  urlList = options.urlList;
+  blockList.setUrlList(options.urlList);
+  blockList.setDaytimeList(options.daytimeList)
 
   console.log("Options are updated.");
 }
