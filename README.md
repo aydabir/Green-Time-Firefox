@@ -3,7 +3,7 @@ A browser plugin to help people better use their time. It aims to use a gentle a
 
 ## Getting Started
 
-Open "about:debugging" in Firefox, click "Load Temporary Add-on" and select any file in your extension's directory (See video [here](https://www.youtube.com/watch?v=cer9EUKegG4))
+Open "about:debugging#/runtime/this-firefox" (for older firefox versions : "about:debugging") in Firefox, click "Load Temporary Add-on" and select any file in your extension's directory (See video [here](https://www.youtube.com/watch?v=cer9EUKegG4))
 
 Please feel free to contact us.
 
