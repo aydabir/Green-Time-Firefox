@@ -1,4 +1,4 @@
-console.info('Background is loaded');
+console.info('background.js is loaded');
 
 // Properties of background script
 var isWaiting = false; // waiting now? control variable
@@ -7,7 +7,7 @@ var minuteMultiplier = 60*1000; // waiting time multiplier: 1 minute
 // TODO: Waiting time options
 var blockList = new BlockList();
 
-var passUrlList = [];
+var targetUrlList = [];
 
 // This function is called once in the start of the browser
 function initialize(){
@@ -59,8 +59,8 @@ function handleMessage(request, sender, sendResponse){
       updateOptions(request.options);
       break;
 
-    case "green-pass url":
-      sendGreenPassUrl(sender.tab.id);
+    case "request green-pass url":
+      sendGreenPassTarget(sender.tab.id);
       break;
 
     case "close tab":
@@ -156,8 +156,8 @@ function filterDaytime() {
 function bringGreenPass(tab){
   // Show the green-pass view
   browser.tabs.update(tab.id, {url: "views/green-pass.html"});
-  // record passUrl to inform green-pass later
-  passUrlList[tab.id] = tab.url;
+  // record targetUrl to inform green-pass later
+  targetUrlList[tab.id] = tab.url;
 }
 
 // starts waiting the given time*minutes
@@ -186,15 +186,15 @@ function closeTab(tabId) {
   browser.tabs.remove(tabId);
 }
 
-// sends green-pass page the url to direct, if user choses to 'visit'
-function sendGreenPassUrl(tabId){
+// Sends green-pass page the url to direct. It is used when the user choses to 'visit'
+function sendGreenPassTarget(tabId){
   // undefined?
   if (!tabId) {
     console.log("Green-pass tab id is undefined!");
     return;
   }
   // inform Green-pass
-  browser.tabs.sendMessage(tabId, {passUrl: passUrlList[tabId]});
+  browser.tabs.sendMessage(tabId, {targetUrl: targetUrlList[tabId]});
 }
 
 // updates the options with the option values coming with message
