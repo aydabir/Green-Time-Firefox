@@ -1,4 +1,4 @@
-console.info('BlockList is loaded');
+console.info('block-list.js is loaded');
 
 /*
  BlockList : blueprint for the BlockList
@@ -159,5 +159,3 @@ var Domain = function (_url, _waitTime, _category) {
     totalVisitTime: 0
   }
 };
-
-}
