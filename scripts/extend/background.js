@@ -1,15 +1,20 @@
-console.info('Background is loaded');
+console.info('background.js is loaded');
 
 // Properties of background script
 var isWaiting = false; // waiting now? control variable
-var minuteMultiplier = 60*1000; // bekleme süresi: 5 dakika
+var minuteMultiplier = 60*1000; // waiting time multiplier: 1 minute
+
 // TODO: Waiting time options
-var urlList = ["facebook.com"];
-var passUrlList = [];
-var daytimeList = [];
+var blockList = new BlockList();
+
+var targetUrlList = [];
 
 // This function is called once in the start of the browser
 function initialize(){
+  // default values (in case of the first run)
+  blockList.setUrlList(["facebook.com"]);
+  blockList.setDaytimeList([{from:"00:00", to:"23:59"}]);
+
   load_options();
 }
 
@@ -18,7 +23,6 @@ function tabUpdate(tabId, changeInfo, tab){
   console.log("onUpdated "+tab.url);
   // check if the page should be filtered
   doFilter = filterTab(tab);
-  console.log(tabId);
   // show green-pass if it does
   if(doFilter){
     bringGreenPass(tab);
@@ -55,8 +59,8 @@ function handleMessage(request, sender, sendResponse){
       updateOptions(request.options);
       break;
 
-    case "green-pass url":
-      sendGreenPassUrl(sender.tab.id);
+    case "request green-pass url":
+      sendGreenPassTarget(sender.tab.id);
       break;
 
     case "close tab":
@@ -71,23 +75,27 @@ function handleMessage(request, sender, sendResponse){
 // a general function to restore options
 // it is called at initialization
 function load_options() {
-  browser.storage.local.get({
-    urlList: urlList,
-		daytimeList: daytimeList
-  }, function(items) {
-
+  // cookies of interest
+  var cookie_names = ["urlList","daytimeList"];
+  // NOTE: we are using the 'chrome' way of reading the storage
+  browser.storage.local.get(cookie_names, function(items) {
     // control the undefined case
     if(!items || items.length < 2){
       console.error("Option items are not proper.");
       return;
     }
-
-    urlList = items.urlList
-    daytimeList = items.daytimeList;
-
+    // in the first run they will be 'undefined'. Keep the default values then.
+    if(!Util.isEmpty(items.urlList))
+      blockList.setUrlList(items.urlList);
+    if(!Util.isEmpty(items.daytimeList))
+      blockList.setDaytimeList(items.daytimeList);
   });
+
   // log the bg console
-  console.log("Options loaded");
+  console.log("Options loaded:");
+  // report the loaded cookies
+  console.log(blockList.getUrlList());
+  console.log(blockList.getDaytimeList());
 }
 
 // Decides if the tab should be filtered or not
@@ -106,6 +114,7 @@ function filterTab(tab){
   // check daytime
   if(!filterDaytime()) return false;
 
+  urlList = blockList.getUrlList();
   // iterate all urls in list
   len = urlList.length;
   for(var i=0; i<len; i++){
@@ -126,6 +135,7 @@ function filterDaytime() {
   var currentDate = new Date();
   var strTime = currentDate.getHours()+":"+currentDate.getMinutes()+":00";
 
+  daytimeList = blockList.getDaytimeList();
   // compare if it fits to 'any' of the interval
   //iterate all intervals in list
   len = daytimeList.length;
@@ -145,9 +155,9 @@ function filterDaytime() {
 // Show green-pass.html in the tab
 function bringGreenPass(tab){
   // Show the green-pass view
-  browser.tabs.update(tab.id, {url: "green-pass.html"});
-  // record passUrl to inform green-pass later
-  passUrlList[tab.id] = tab.url;
+  browser.tabs.update(tab.id, {url: "views/green-pass.html"});
+  // record targetUrl to inform green-pass later
+  targetUrlList[tab.id] = tab.url;
 }
 
 // starts waiting the given time*minutes
@@ -176,15 +186,15 @@ function closeTab(tabId) {
   browser.tabs.remove(tabId);
 }
 
-// sends green-pass page the url to direct, if user choses to 'visit'
-function sendGreenPassUrl(tabId){
+// Sends green-pass page the url to direct. It is used when the user choses to 'visit'
+function sendGreenPassTarget(tabId){
   // undefined?
   if (!tabId) {
     console.log("Green-pass tab id is undefined!");
     return;
   }
   // inform Green-pass
-  browser.tabs.sendMessage(tabId, {passUrl: passUrlList[tabId]});
+  browser.tabs.sendMessage(tabId, {targetUrl: targetUrlList[tabId]});
 }
 
 // updates the options with the option values coming with message
@@ -195,7 +205,8 @@ function updateOptions(options){
     return;
   }
   // assign bg variables
-  urlList = options.urlList;
+  blockList.setUrlList(options.urlList);
+  blockList.setDaytimeList(options.daytimeList)
 
   console.log("Options are updated.");
 }

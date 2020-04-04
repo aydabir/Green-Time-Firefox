@@ -1,7 +1,5 @@
 console.info('Options is loaded');
 
-var blockList = new BlockList(); // TODO: Not used anywhere
-
 var urlList = [];
 var daytimeList = [];
 
@@ -24,10 +22,9 @@ function save_options() {
 
 	// option items
 	items = {
-		urlList: urlList,
-		daytimeList: intervals
+		"urlList": urlList,
+		"daytimeList": intervals
 	};
-
 
 	browser.storage.local.set(items);
 
@@ -50,20 +47,15 @@ function handleDomLoaded() {
 	// start listening the save button
 	document.getElementById('save').addEventListener('click', save_options);
 
-	browser.storage.local.get({
-		urlList: urlList,
-		daytimeList: daytimeList
-	}, function (items) {
+	browser.storage.local.get(["urlList", "daytimeList"], function (items) {
 		// control the undefined case
 		if (!items) return;
 
-		var strUrls = updateUrls(items.urlList);
+		updateUrls(items.urlList);
 		updateDaytime(items.daytimeList);
 
-		document.getElementById('urlList').value = strUrls;
 		// update the bg options
 		browser.runtime.sendMessage({topic: "update options", options: items});
-
 	});
 	// log the bg console
 	browser.runtime.sendMessage({topic: "console log", log: "options loaded"});
@@ -160,7 +152,7 @@ function updateUrls(newUrlList) {
 		strUrls = strUrls + urlList[i] + "\n";
 	}
 
-	return strUrls;
+	document.getElementById('urlList').value = strUrls;
 }
 
 // update the daytimeList, inform background script
@@ -208,12 +200,6 @@ function add_daytime_interval(jquery,from, to) {
 function remove_daytime_interval() {
 	$(this).parent().parent().remove();
 }
-
-
-
-
-
-
 
 // Event for the Add button in Daytime options
 $('.btn-add-interval').on('click',add_daytime_interval);
