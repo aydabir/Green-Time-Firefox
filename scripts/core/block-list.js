@@ -124,25 +124,6 @@ var BlockList = function () {
     console.table(blockList.getUrlList());
   };
 
-  /*
-   clear : clear all domains in _urlList
-   @param areYouDrunk : you must provide you're not drunk
-   @return boolean
-   */
-  this.clear = function (areYouDrunk) {
-    if (!Util.isEmpty(areYouDrunk) && areYouDrunk.toString() == "Nope") {
-      _urlList = [];
-      browser.storage.local.set({"blockList": _urlList}, function () {
-        console.info("Cleaned");
-      });
-      return true;
-    } else {
-      console.error("System.Exception.TooMuchBeer");
-      console.warn("Please shut the PC and go to the bed.");
-      return false;
-    }
-  }
-
 };
 /*
  Domain : blueprint of domains
@@ -178,29 +159,5 @@ var Domain = function (_url, _waitTime, _category) {
     totalVisitTime: 0
   }
 };
-
-var BlockData = function () {
-
-    // Private Methods [3]
-    /*
-     * loadStorage : load stored data from browser api and set to the _list
-     * @return filled or empty array
-     */
-    var loadStorage = function () {
-        browser.storage.local.get("urlList", function (data) {
-            if (Util.isEmpty(data)) {
-                console.warn("Empty blocked domain list");
-                return [];
-            } else {
-                _list = data.blockList;
-                return {
-                    "list": data.blockList
-                };
-            }
-        });
-    };
-    var constructor = (function () {
-        loadStorage();
-    })();
 
 }
