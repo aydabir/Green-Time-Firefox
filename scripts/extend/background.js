@@ -79,7 +79,7 @@ function load_options() {
   // cookies of interest
   var cookie_names = ["urlList","daytimeList"];
   // NOTE: we are using the 'chrome' way of reading the storage
-  browser.storage.local.get(cookies, function(items) {
+  browser.storage.local.get(cookie_names, function(items) {
     // control the undefined case
     if(!items || items.length < 2){
       console.error("Option items are not proper.");
@@ -156,7 +156,7 @@ function filterDaytime() {
 // Show green-pass.html in the tab
 function bringGreenPass(tab){
   // Show the green-pass view
-  browser.tabs.update(tab.id, {url: "green-pass.html"});
+  browser.tabs.update(tab.id, {url: "views/green-pass.html"});
   // record passUrl to inform green-pass later
   passUrlList[tab.id] = tab.url;
 }
