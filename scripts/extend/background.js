@@ -12,7 +12,7 @@ var passUrlList = [];
 // This function is called once in the start of the browser
 function initialize(){
   // default values (in case of the first run)
-  blockList.setUrlList(["facebook.com"])
+  blockList.setUrlList(["facebook.com"]);
   blockList.setDaytimeList([{from:"00:00", to:"23:59"}]);
 
   load_options();
@@ -76,23 +76,27 @@ function handleMessage(request, sender, sendResponse){
 // a general function to restore options
 // it is called at initialization
 function load_options() {
-  browser.storage.local.get({
-    urlList: urlList,
-		daytimeList: daytimeList
-  }, function(items) {
-
+  // cookies of interest
+  var cookie_names = ["urlList","daytimeList"];
+  // NOTE: we are using the 'chrome' way of reading the storage
+  browser.storage.local.get(cookies, function(items) {
     // control the undefined case
     if(!items || items.length < 2){
       console.error("Option items are not proper.");
       return;
     }
-
-    urlList = items.urlList
-    daytimeList = items.daytimeList;
-
+    // in the first run they will be 'undefined'. Keep the default values then.
+    if(!Util.isEmpty(items.urlList))
+      blockList.setUrlList(items.urlList);
+    if(!Util.isEmpty(items.daytimeList))
+      blockList.setDaytimeList(items.daytimeList);
   });
+
   // log the bg console
-  console.log("Options loaded");
+  console.log("Options loaded:");
+  // report the loaded cookies
+  console.log(blockList.getUrlList());
+  console.log(blockList.getDaytimeList());
 }
 
 // Decides if the tab should be filtered or not
@@ -111,6 +115,7 @@ function filterTab(tab){
   // check daytime
   if(!filterDaytime()) return false;
 
+  urlList = blockList.getUrlList();
   // iterate all urls in list
   len = urlList.length;
   for(var i=0; i<len; i++){
@@ -131,6 +136,7 @@ function filterDaytime() {
   var currentDate = new Date();
   var strTime = currentDate.getHours()+":"+currentDate.getMinutes()+":00";
 
+  daytimeList = blockList.getDaytimeList();
   // compare if it fits to 'any' of the interval
   //iterate all intervals in list
   len = daytimeList.length;
