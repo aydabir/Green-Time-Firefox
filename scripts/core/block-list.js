@@ -185,10 +185,12 @@ var Domain = function (_url, _category) {
   }
 
   // Callback to end the waiting
-  this.endWaiting = function(){
+  // Using bind, otherwise JS won't respect 'this' keyword. See below:
+  // https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout#The_this_problem
+  this.endWaiting = (function(){
     console.log("Waiting has finished on " + this.url);
     this.isWaiting = false;
-  }
+  }).bind(this);
 
   this.statistics = {
     totalVisitCount: 0,
