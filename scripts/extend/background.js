@@ -116,11 +116,18 @@ function filterTab(tab){
   return (domain && !domain.isWaiting)
 }
 
+// returns daytime as minutes from 00:00
+// hours * 60 + minutes
+function parseDaytime(strTime){
+  arrTime = strTime.split(":");
+  return parseInt(arrTime[0]) * 60 + parseInt(arrTime[1])
+}
+
 // compare current time if it fits to 'any' of the daytime intervals
 function filterDaytime() {
   // get current time and create a string of HH:SS format
   var currentDate = new Date();
-  var strTime = currentDate.getHours()+":"+currentDate.getMinutes()+":00";
+  var currentDaytime = currentDate.getHours()*60+currentDate.getMinutes();
 
   daytimeList = blockList.getDaytimeList();
   // compare if it fits to 'any' of the interval
@@ -128,11 +135,11 @@ function filterDaytime() {
   len = daytimeList.length;
   for(var i=0; i<len; i++){
     // TODO: check empty/improper daytime
-    var strFrom = daytimeList[i].from+":00";
-    var strTo = daytimeList[i].to+":00";
+    var daytimeFrom = parseDaytime(daytimeList[i].from);
+    var daytimeTo = parseDaytime(daytimeList[i].to);
 
     // in this interval? then filter applies
-    if (strTime > strFrom && strTime < strTo){
+    if (currentDaytime > daytimeFrom && currentDaytime < daytimeTo){
       return true
     }
   }
