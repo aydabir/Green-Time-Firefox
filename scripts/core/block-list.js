@@ -59,6 +59,7 @@ var BlockList = function () {
     for(const url of newList){
       _domainList.push(new Domain(url, category));
     }
+    this.storeCookies();
   };
 
   this.getDaytimeList = function () {
@@ -72,7 +73,15 @@ var BlockList = function () {
 
   this.setDaytimeList = function (newList) {
     _daytimeList = newList;
+    this.storeCookies();
   };
+
+  this.storeCookies = function () {
+    browser.storage.local.set({
+      "urlList": this.getUrlList(),
+      "daytimeList": this.getDaytimeList()
+    });
+  }
 
   /*
    addDomain : adds a new domain to the _urlList
@@ -93,10 +102,9 @@ var BlockList = function () {
     if (Utils.isEmpty(_domainList)) {
       _domainList = [];
     }
-    // add to list
+    // add to list and save
     _domainList.push(domain);
-    // save as a cookie
-    browser.storage.local.set({"urlList": this.getUrlList()});
+    this.storeCookies();
 
     return true;
   };
@@ -118,10 +126,9 @@ var BlockList = function () {
       console.error("given domain doesn't exist on the list");
       return false;
     }
-    // update
+    // update and save
     _domainList[indexOfDomain.index] = domain;
-    // save as a cookie
-    browser.storage.local.set({"urlList": this.getUrlList()});
+    this.storeCookies();
 
     return true;
   };
@@ -177,6 +184,7 @@ var Domain = function (_url, _category) {
   this.category = _category || 'General';
   this.isWaiting = false;
 
+  // starts a timer, until the timeout this domain is not blocked
   this.startWaiting = function(time){
     this.isWaiting = true;
     // start timer for waiting
