@@ -1,10 +1,7 @@
 console.info('background.js is loaded');
 
-// Properties of background script
-var isWaiting = false; // waiting now? control variable
-var minuteMultiplier = 60*1000; // waiting time multiplier: 1 minute
-
 // TODO: Waiting time options
+// Properties of background script
 var blockList = new BlockList();
 
 var targetUrlList = [];
@@ -48,7 +45,8 @@ function handleMessage(request, sender, sendResponse){
   // Act according to request.topic
   switch (request.topic) {
     case "start waiting":
-      startWaiting(request.time);
+      // this domain will not be filtered while waiting
+      blockList.waitOnDomain(targetUrlList[sender.tab.id], request.time);
       break;
 
     case "console log":
@@ -108,32 +106,28 @@ function filterTab(tab){
     return false;
   }
 
-  // check waiting time
-  if(isWaiting) return false;
-
   // check daytime
+  // TODO: separate daytime intervals for separate url lists
   if(!filterDaytime()) return false;
 
-  urlList = blockList.getUrlList();
-  // iterate all urls in list
-  len = urlList.length;
-  for(var i=0; i<len; i++){
-    // if empty then skip
-    if(urlList[i].length <= 0) continue;
+  var domain = blockList.getDomain(tab.url);
 
-    var n = tab.url.search(urlList[i]);
-    // does it match to the url?
-    if (n >= 0) return true;
-  }
+  // filter if the domain is on the list AND not waiting
+  return (domain && !domain.isWaiting)
+}
 
-  return false;
+// returns daytime as minutes from 00:00
+// hours * 60 + minutes
+function parseDaytime(strTime){
+  arrTime = strTime.split(":");
+  return parseInt(arrTime[0]) * 60 + parseInt(arrTime[1])
 }
 
 // compare current time if it fits to 'any' of the daytime intervals
 function filterDaytime() {
   // get current time and create a string of HH:SS format
   var currentDate = new Date();
-  var strTime = currentDate.getHours()+":"+currentDate.getMinutes()+":00";
+  var currentDaytime = currentDate.getHours()*60+currentDate.getMinutes();
 
   daytimeList = blockList.getDaytimeList();
   // compare if it fits to 'any' of the interval
@@ -141,11 +135,11 @@ function filterDaytime() {
   len = daytimeList.length;
   for(var i=0; i<len; i++){
     // TODO: check empty/improper daytime
-    var strFrom = daytimeList[i].from+":00";
-    var strTo = daytimeList[i].to+":00";
+    var daytimeFrom = parseDaytime(daytimeList[i].from);
+    var daytimeTo = parseDaytime(daytimeList[i].to);
 
     // in this interval? then filter applies
-    if (strTime > strFrom && strTime < strTo){
+    if (currentDaytime > daytimeFrom && currentDaytime < daytimeTo){
       return true
     }
   }
@@ -158,21 +152,6 @@ function bringGreenPass(tab){
   browser.tabs.update(tab.id, {url: "views/green-pass.html"});
   // record targetUrl to inform green-pass later
   targetUrlList[tab.id] = tab.url;
-}
-
-// starts waiting the given time*minutes
-function startWaiting(time){
-  isWaiting = true;
-  var totalWait = time*minuteMultiplier;
-  // start timer for waiting
-  setTimeout(endWaiting, totalWait);
-  console.log(totalWait + " Waiting has started");
-}
-
-// Procedure to call in the end of the waiting
-function endWaiting(){
-  console.log("Waiting has ended");
-  isWaiting = false;
 }
 
 // Closes the current tab. Firefox doesn't permit closing by page script

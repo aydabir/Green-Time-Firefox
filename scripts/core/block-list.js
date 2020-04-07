@@ -1,5 +1,6 @@
 console.info('block-list.js is loaded');
 
+var minuteToMillisec = 60*1000; // 1 minute in milliseconds
 /*
  BlockList : blueprint for the BlockList
  @return void
@@ -8,20 +9,22 @@ var BlockList = function () {
   "use strict";
 
   // Private Variables [1]
-  var _urlList = [];
+  var _domainList = [];
   var _daytimeList = [];
 
   /*
    * find : returns index of the found domain if it fails will return false
-   * @param domain : it must be instance of Domain
+   * @param url : url of the domain
    */
-  var find = function (domain) {
+  this.findDomain = function (url) {
     "use strict";
-    if (!(domain instanceof Domain)) {
-      console.error("Domain is not valid");
-      return false;
-    }
-    var _index = _.findIndex(_urlList, {url: domain.url});
+
+    if(typeof(url) != "string")
+      throw Error("Url has to be a string")
+
+    // TODO: strip url to the bare domain before searching
+    // return the domain if url is satisfied (search >= 0)
+    var _index = _domainList.findIndex(function(domain) {return (url.search(domain.url)>=0)});
     var result = {index: _index, status: parseInt(_index) !== parseInt(-1) ? true : false};
     return result;
   };
@@ -30,15 +33,19 @@ var BlockList = function () {
 
   // Public Methods [4]
   /*
-   * getUrlList : returns the _urlList
-   * @return empty array or the _urlList
+   * getUrlList : returns the list of urls (not domain objects)
+   * @return empty list or a list of strings
    */
   this.getUrlList = function () {
-    if (Util.isEmpty(_urlList)) {
+    if (Util.isEmpty(_domainList)) {
       console.warn("Empty blocked domain list");
       return [];
     } else {
-      return _urlList;
+      var urlList = [];
+      for(const d of _domainList){
+        urlList.push(d.url);
+      }
+      return urlList;
     }
   };
 
@@ -46,8 +53,13 @@ var BlockList = function () {
    *
    * @param newList
    */
-  this.setUrlList = function (newList) {
-    _urlList = newList;
+  this.setUrlList = function (newList, category="General") {
+    // override
+    _domainList = []
+    for(const url of newList){
+      _domainList.push(new Domain(url, category));
+    }
+    this.storeCookies();
   };
 
   this.getDaytimeList = function () {
@@ -61,7 +73,15 @@ var BlockList = function () {
 
   this.setDaytimeList = function (newList) {
     _daytimeList = newList;
+    this.storeCookies();
   };
+
+  this.storeCookies = function () {
+    browser.storage.local.set({
+      "urlList": this.getUrlList(),
+      "daytimeList": this.getDaytimeList()
+    });
+  }
 
   /*
    addDomain : adds a new domain to the _urlList
@@ -69,26 +89,23 @@ var BlockList = function () {
    @return boolean
    */
   this.addDomain = function (domain) {
+    // NOTE: Unused. Needs a fix, or may be removed
     if (!(domain instanceof Domain)) {
       console.error("Domain is not valid");
       return false;
     }
-    if (find(domain).status) {
-      console.error("this domain already added if you want update a domain, call the .update(domain) function");
+    // domain already exists?
+    if (findDomain(domain).status) {
+      console.error("this domain already added if you want update a domain, call the .updateDomain() function");
       return false;
     }
-    var tempList;
-    if (!Utils.isEmpty(_urlList)) {
-      tempList = this.getUrlList();
-    } else {
-      tempList = [];
+    if (Utils.isEmpty(_domainList)) {
+      _domainList = [];
     }
-    tempList.push(domain);
-    browser.storage.local.set({"urlList": tempList}, function () {
-      _urlList.push(domain);
-      loadStorage();
-      console.info("Added");
-    });
+    // add to list and save
+    _domainList.push(domain);
+    this.storeCookies();
+
     return true;
   };
 
@@ -98,21 +115,21 @@ var BlockList = function () {
    @return boolean
    */
   this.updateDomain = function (domain) {
+    // NOTE: Unused. Needs a fix, or may be removed
     if (!(domain instanceof Domain)) {
       console.error("Domain is not valid");
       return false;
     }
 
-    var indexOfDomain = find(domain);
+    var indexOfDomain = this.findDomain(domain);
     if (!indexOfDomain.status) {
-      console.error("given domain doesn't exist on the _urlList");
+      console.error("given domain doesn't exist on the list");
       return false;
     }
-    _urlList[indexOfDomain.index] = domain;
+    // update and save
+    _domainList[indexOfDomain.index] = domain;
+    this.storeCookies();
 
-    browser.storage.local.set({"blockList": _urlList}, function () {
-      console.info("Updated");
-    });
     return true;
   };
 
@@ -124,35 +141,64 @@ var BlockList = function () {
     console.table(blockList.getUrlList());
   };
 
+  /*
+    Returns the domain by url
+    @url: url of the domain
+    @return domain or null
+  */
+  this.getDomain = function(url) {
+    var result = this.findDomain(url);
+    if(result.status)
+      return _domainList[result.index];
+    else
+      return null;
+  }
+
+  /*
+    waitOnDomain : starts the waiting timer on a domain, this domain can be visited
+    during this time, in the end the timer calls endWaiting() method of the domain
+    @param url: address to wait on
+    @param time : minutes of time to wait
+  */
+  this.waitOnDomain = function(url, time) {
+    // index of domain
+    var d_i = this.findDomain(url).index
+    _domainList[d_i].startWaiting(time);
+  }
+
 };
 /*
  Domain : blueprint of domains
  @param paramUrl : the web url of the website
  @return boolean only if false
  */
-var Domain = function (_url, _waitTime, _category) {
-  "use strict";
-  if (typeof _url === "string") {
+var Domain = function (_url, _category) {
 
-    if (Util.isEmpty(_url)) {
-      throw Error("Domain url must be entered");
-    }
+  if (typeof _url != "string")
+    throw Error("Domain url must be a string");
+  if (Util.isEmpty(_url))
+    throw Error("Domain url must be entered");
 
-    this.url = _url;
-    this.waitTime = _waitTime || 5;
-    this.category = _category || 'General';
+  this.url = _url;
+  // NOTE: currently category is unused
+  this.category = _category || 'General';
+  this.isWaiting = false;
 
-  } else if (typeof _url === "object") {
-
-    if (Util.isEmpty(_url.url)) {
-      throw Error("Domain url must be entered");
-    }
-
-    var obj = _url;
-    this.url = obj.url;
-    this.waitTime = obj.waitTime || 5;
-    this.category = obj.category || 'General';
+  // starts a timer, until the timeout this domain is not blocked
+  this.startWaiting = function(time){
+    this.isWaiting = true;
+    // start timer for waiting
+    setTimeout(this.endWaiting, time*minuteToMillisec);
+    console.log("Waiting " + time + "m on " + this.url);
   }
+
+  // Callback to end the waiting
+  // Using bind, otherwise JS won't respect 'this' keyword. See below:
+  // https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout#The_this_problem
+  this.endWaiting = (function(){
+    console.log("Waiting has finished on " + this.url);
+    this.isWaiting = false;
+  }).bind(this);
 
   this.statistics = {
     totalVisitCount: 0,
