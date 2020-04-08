@@ -11,6 +11,7 @@
   },
   "background": {
     "scripts": [
+      "./scripts/core/compatibility.js",
       "./scripts/core/background.js",
       "./scripts/core/block-list.js",
       "./scripts/extend/background.js"
