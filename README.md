@@ -9,12 +9,8 @@ Please feel free to contact us.
 
 ## ToDo-List
 
-
-- [ ] Show notification modal
-- [X] URL-List control
-- [ ] Time tracking
-  - [ ] Periodic Notifications
-- [ ] Plug-in settings UI
+- [X] Basic url blocking
+- [ ] Modern look CSS
 - [ ] Activity time customization
   - [X] Daytime
   - [ ] Weekdays
@@ -22,18 +18,21 @@ Please feel free to contact us.
   - [X] Single list
   - [ ] Multi list
   - [ ] Adding url by browser action
-- [ ] Modal Customization
-  - [ ] OK-button
-  - [ ] Continue/Cancel
-  - [ ] Auto-close
+- [ ] Block notification by injected modal
 - [ ] Message Customization
   - [ ] Text
-  - [ ] Multi-media
+  - [ ] Image
 - [ ] Reaction Customization
   - [ ] Close tab
   - [ ] Redirect to URL
 - [ ] Block status in browser bar
   - [ ] Remaining time for an allowed tab
+  - [ ] Periodic Notifications
+- [ ] Support different browsers
+  - [X] Firefox
+  - [X] Chrome
+  - [ ] Safari
+  - [ ] Edge
 
 # Future Features
 
@@ -42,4 +41,3 @@ Please feel free to contact us.
 - [ ] Gamification
   - [ ] Achievements
 - [ ] Localization
-  - [ ] Multilanguage
