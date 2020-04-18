@@ -4,21 +4,26 @@
     <meta charset="UTF-8">
     <title>Action</title>
 
+    <style>
+        body {
+            min-width: 300px;
+        }
+    </style>
+
 </head>
 <body>
+  <h3>Green-Time<h3>
   <div class="tab">
     <button class="tablink" id="actionBtn" data-page="action">Action</button>
     <button class="tablink" id="optionsBtn" data-page="options">Options</button>
   </div>
   <!-- tabs for options and page actions -->
   <div id="action" class="tabcontent" style="display:block">
-    <h3>Action</h3>
-    <p>Here goes immediate actions..</p>
+    <object type="text/html" data="../../views/action.html"></object>
   </div>
 
   <div id="options" class="tabcontent" style="display:none">
-    <h3>Options</h3>
-    <p>Here goes addon options..</p>
+    <object type="text/html" data="../../views/options.html"></object>
   </div>
 
   <script src="../scripts/core/compatibility.js"></script>
