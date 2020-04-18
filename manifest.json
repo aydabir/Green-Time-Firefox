@@ -24,7 +24,7 @@
   "browser_action": {
     "default_icon": "./resources/images/icons/icon19.png",
     "default_title": "Show Green Time Box",
-    "default_popup": "./views/options.html"
+    "default_popup": "./views/popup-menu.html"
   },
   "permissions": [
     "cookies",
