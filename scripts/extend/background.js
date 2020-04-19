@@ -65,6 +65,13 @@ function handleMessage(request, sender, sendResponse){
       closeTab(sender.tab.id);
       break;
 
+    case "request current tab info":
+      // we use a callback, since query is asynch
+      browser.tabs.query({"currentWindow": true, "active": true}, function(tabs){
+        sendTabInfo(tabs);
+      });
+      break;
+
     default:
       console.log("BG message request.topic is not understood!");
   }
@@ -202,6 +209,22 @@ function printLog(strLog){
   console.log(strLog);
 }
 
+function sendTabInfo(tabs){
+  // this method will send the info of the given tabs as a message
+  var infoList = [];
+
+  for (tab of tabs) {
+    // NOTE: currently only block info is added
+    infoList.push({"url": tab.url , "listed": Boolean(blockList.getDomain(tab.url))});
+  }
+
+  console.log("sending tab info");
+  browser.runtime.sendMessage({topic: "tab info", "infoList": infoList});
+}
+
+function onQueryError(error) {
+  console.log(`Error: ${error}`);
+}
 
 var plugin = {
 
