@@ -1,6 +1,4 @@
 function handleDomLoaded() {
-  // to avoid the dead object error
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Dead_object
 
 	// start listening the buttons
   document.getElementById('actionBtn').addEventListener('click', switchTab);
@@ -18,10 +16,12 @@ function switchTab() {
  var i, tabcontent, tablinks;
  tabcontent = document.getElementsByClassName("tabcontent");
  for (i = 0; i < tabcontent.length; i++) {
+   tabcontent[i].innerHTML = ""; // free the html
    tabcontent[i].style.display = "none";
  }
 
  // Show the specific tab content
+ document.getElementById(pageName).innerHTML = '<object type="text/html" data="../../views/'+pageName+'.html"></object>'
  document.getElementById(pageName).style.display = "block";
 }
 
