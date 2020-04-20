@@ -18,22 +18,13 @@ function initialize(){
 // Funcitons of background script
 function tabUpdate(tabId, changeInfo, tab){
   console.log("onUpdated "+tab.url);
-  // check if the page should be filtered
-  doFilter = filterTab(tab);
-  // show green-pass if it does
-  if(doFilter){
-    bringGreenPass(tab);
-  }
+  testAndBlock(tab);
 }
 
 // this is called when a tab is created
 function tabCreate(tabId, changeInfo, tab){
-  // check if the page should be filtered
-  doFilter = filterTab(tab);
-  // show green-pass if it does
-  if(doFilter){
-    bringGreenPass(tab);
-  }
+  console.log("onCreated "+tab.url);
+  testAndBlock(tab);
 }
 
 // handle the messages coming from content scripts
@@ -67,6 +58,10 @@ function handleMessage(request, sender, sendResponse){
 
     case "block url":
       blockList.addUrl(request.url);
+      // we use a callback, since query is asynch
+      browser.tabs.query({"currentWindow": true, "active": true}, function(tabs){
+        testAndBlock(tabs[0]);
+      });
       break;
 
     case "unblock url":
@@ -109,6 +104,15 @@ function load_options() {
   // report the loaded cookies
   console.log(blockList.getUrlList());
   console.log(blockList.getDaytimeList());
+}
+
+function testAndBlock(tab){
+  // check if the page should be filtered
+  doFilter = filterTab(tab);
+  // show green-pass if it does
+  if(doFilter){
+    bringGreenPass(tab);
+  }
 }
 
 // Decides if the tab should be filtered or not
