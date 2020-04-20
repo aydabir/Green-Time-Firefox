@@ -188,7 +188,7 @@ function sendGreenPassTarget(tabId){
     return;
   }
   // inform Green-pass
-  browser.tabs.sendMessage(tabId, {targetUrl: targetUrlList[tabId]});
+  browser.tabs.sendMessage(tabId, {topic:"green-pass url", targetUrl: targetUrlList[tabId]});
 }
 
 // updates the options with the option values coming with message
