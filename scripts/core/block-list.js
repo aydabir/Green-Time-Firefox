@@ -121,7 +121,7 @@ var BlockList = function () {
       return false;
     }
 
-    var indexOfDomain = this.findDomain(domain);
+    var indexOfDomain = this.findDomain(domain).index;
     if (!indexOfDomain.status) {
       console.error("given domain doesn't exist on the list");
       return false;
@@ -145,9 +145,13 @@ var BlockList = function () {
   this.removeUrl = function (url) {
     if(typeof(url) != "string")
       throw Error("Url has to be a string");
+
     // find and destroy
-    var i = this.findDomain(url);
-    _domainList.splice(i,1);
+    var result = this.findDomain(url);
+
+    if(result.status){
+      _domainList.splice(result.index, 1);
+    }
     this.storeCookies();
   };
 
