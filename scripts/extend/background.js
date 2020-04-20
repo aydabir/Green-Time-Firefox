@@ -65,6 +65,14 @@ function handleMessage(request, sender, sendResponse){
       closeTab(sender.tab.id);
       break;
 
+    case "block url":
+      blockList.addUrl(request.url);
+      break;
+
+    case "unblock url":
+      blockList.removeUrl(request.url);
+      break;
+
     case "request current tab info":
       // we use a callback, since query is asynch
       browser.tabs.query({"currentWindow": true, "active": true}, function(tabs){

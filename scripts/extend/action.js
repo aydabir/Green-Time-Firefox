@@ -9,31 +9,36 @@ function handleDomLoaded() {
 
 function blockPage(){
   var url = document.getElementById("textUrl").innerHTML;
-  browser.runtime.sendMessage({topic: "console log",log:"Block"+url});
+  browser.runtime.sendMessage({topic: "block url", "url":url});
+  toggleButtonType(url, true);
 }
 
 function unblockPage(){
   var url = document.getElementById("textUrl").innerHTML;
-  browser.runtime.sendMessage({topic: "console log",log:"Unblock"+url});
+  browser.runtime.sendMessage({topic: "unblock url", "url":url});
+
+  toggleButtonType(url, false);
 }
 
 function toggleButtonType(url, isBlocked){
   // switches between block or unblock button depending to the tab state
-  document.getElementById("textUrl").innerHTML = url; // TODO: filter domain
+  const urlObj = new URL(url);
+  document.getElementById("textUrl").innerHTML = urlObj.hostname;
 
-  // set button visible
   var blockBtn = document.getElementById('blockBtn');
-  blockBtn.style.display = "block";
+  blockBtn.style.display = "none";
 
   // toggle function of the button
   if(isBlocked){
-    blockBtn.value = "Unblock";
+    blockBtn.innerHTML = "Unblock";
     blockBtn.addEventListener('click', unblockPage);
 
   }else{
-    blockBtn.value = "Block";
+    blockBtn.innerHTML = "Block";
     blockBtn.addEventListener('click', blockPage);
   }
+  // set button visible
+  blockBtn.style.display = "block";
 }
 
 // listen for the messages coming from the extension

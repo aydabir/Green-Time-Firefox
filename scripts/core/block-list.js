@@ -20,7 +20,7 @@ var BlockList = function () {
     "use strict";
 
     if(typeof(url) != "string")
-      throw Error("Url has to be a string")
+      throw Error("Url has to be a string");
 
     // TODO: strip url to the bare domain before searching
     // return the domain if url is satisfied (search >= 0)
@@ -131,6 +131,24 @@ var BlockList = function () {
     this.storeCookies();
 
     return true;
+  };
+
+  this.addUrl = function (url, category="General") {
+    if(typeof(url) != "string")
+      throw Error("Url has to be a string");
+
+    _domainList.push(new Domain(url, category));
+
+    this.storeCookies();
+  };
+
+  this.removeUrl = function (url) {
+    if(typeof(url) != "string")
+      throw Error("Url has to be a string");
+    // find and destroy
+    var i = this.findDomain(url);
+    _domainList.splice(i,1);
+    this.storeCookies();
   };
 
   /*
