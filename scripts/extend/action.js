@@ -8,16 +8,23 @@ function handleDomLoaded() {
 }
 
 function blockPage(){
+  // hide the button when pressed
+  document.getElementById('blockBtn').style.display = "none";
+  // request block
   var url = document.getElementById("textUrl").innerHTML;
   browser.runtime.sendMessage({topic: "block url", "url":url});
-  toggleButtonType(url, true);
+  // show the new button
+  this.toggleButtonType(url, true);
 }
 
 function unblockPage(){
+  // hide the button when pressed
+  document.getElementById('blockBtn').style.display = "none";
+  // request unblock
   var url = document.getElementById("textUrl").innerHTML;
   browser.runtime.sendMessage({topic: "unblock url", "url":url});
-
-  toggleButtonType(url, false);
+  // show the new button
+  this.toggleButtonType(url, false);
 }
 
 function toggleButtonType(url, isBlocked){
@@ -26,7 +33,6 @@ function toggleButtonType(url, isBlocked){
   document.getElementById("textUrl").innerHTML = urlObj.hostname;
 
   var blockBtn = document.getElementById('blockBtn');
-  blockBtn.style.display = "none";
 
   // toggle function of the button
   if(isBlocked){
