@@ -28,15 +28,8 @@ document.addEventListener('DOMContentLoaded', function() {
 browser.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
 		// ignore messages from tabs (including this)
-		if(sender.tab) {
-			return;
-		}
-		// undefined?
-		if(!request.targetUrl) {
-			browser.runtime.sendMessage({topic: "console log",log:"green-pass:\
-			No targetUrl param in message"});
-			return;
+		if(request.topic == "green-pass url") {
+				targetUrl = request.targetUrl;
 		}
 
-		targetUrl = request.targetUrl;
 });
