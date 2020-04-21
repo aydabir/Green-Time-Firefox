@@ -16,14 +16,14 @@ function initialize() {
 }
 
 // Funcitons of background script
-function tabUpdate(tabId, changeInfo, tab){
-  console.log("onUpdated "+tab.url);
+function tabUpdate(tabId, changeInfo, tab) {
+  console.log("onUpdated " + tab.url);
   testAndBlock(tab);
 }
 
 // this is called when a tab is created
-function tabCreate(tabId, changeInfo, tab){
-  console.log("onCreated "+tab.url);
+function tabCreate(tabId, changeInfo, tab) {
+  console.log("onCreated " + tab.url);
   testAndBlock(tab);
 }
 
@@ -59,7 +59,7 @@ function handleMessage(request, sender, sendResponse) {
     case "block url":
       blockList.addUrl(request.url);
       // we use a callback, since query is asynch
-      browser.tabs.query({"currentWindow": true, "active": true}, function(tabs){
+      browser.tabs.query({ "currentWindow": true, "active": true }, function (tabs) {
         testAndBlock(tabs[0]);
       });
       break;
@@ -70,7 +70,7 @@ function handleMessage(request, sender, sendResponse) {
 
     case "request current tab info":
       // we use a callback, since query is asynch
-      browser.tabs.query({"currentWindow": true, "active": true}, function(tabs){
+      browser.tabs.query({ "currentWindow": true, "active": true }, function (tabs) {
         sendTabInfo(tabs);
       });
       break;
@@ -106,11 +106,11 @@ function load_options() {
   console.log(blockList.getDaytimeList());
 }
 
-function testAndBlock(tab){
+function testAndBlock(tab) {
   // check if the page should be filtered
   doFilter = filterTab(tab);
   // show green-pass if it does
-  if(doFilter){
+  if (doFilter) {
     bringGreenPass(tab);
   }
 }
@@ -171,12 +171,9 @@ function bringGreenPass(tab) {
   // record targetUrl to inform green-pass later
   greenPassViewUrl = browser.runtime.getURL('views/green-pass.html');
 
-  browser.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    browser.tabs.executeScript(tabs[0].id,
-      { code: `
-        GreenTime.showGreenPassView();
-      ` })
-  })
+  var injectScript = `GreenTime.showGreenPassView();`;
+
+  browser.tabs.executeScript(tab.id, { code: injectScript });
 
   targetUrlList[tab.id] = tab.url;
 }
@@ -200,7 +197,7 @@ function sendGreenPassTarget(tabId) {
     return;
   }
   // inform Green-pass
-  browser.tabs.sendMessage(tabId, {topic:"green-pass url", targetUrl: targetUrlList[tabId]});
+  browser.tabs.sendMessage(tabId, { topic: "green-pass url", targetUrl: targetUrlList[tabId] });
 }
 
 // updates the options with the option values coming with message
@@ -229,17 +226,17 @@ function printLog(strLog) {
   console.log(strLog);
 }
 
-function sendTabInfo(tabs){
+function sendTabInfo(tabs) {
   // this method will send the info of the given tabs as a message
   var infoList = [];
 
   for (tab of tabs) {
     // NOTE: currently only block info is added
-    infoList.push({"url": tab.url , "listed": Boolean(blockList.getDomain(tab.url))});
+    infoList.push({ "url": tab.url, "listed": Boolean(blockList.getDomain(tab.url)) });
   }
 
   console.log("sending tab info");
-  browser.runtime.sendMessage({topic: "tab info", "infoList": infoList});
+  browser.runtime.sendMessage({ topic: "tab info", "infoList": infoList });
 }
 
 function onQueryError(error) {
