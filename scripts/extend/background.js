@@ -153,12 +153,10 @@ function bringGreenPass(tab) {
   // record targetUrl to inform green-pass later
   greenPassViewUrl = chrome.runtime.getURL('views/green-pass.html');
 
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    chrome.tabs.executeScript(tabs[0].id,
-      { code: `
-        GreenTime.ShowGreenPassView();
-      ` })
-  })
+  chrome.tabs.executeScript(tab.id,
+    { code: `
+      GreenTime.ShowGreenPassView();
+    ` })
 
   targetUrlList[tab.id] = tab.url;
 }
