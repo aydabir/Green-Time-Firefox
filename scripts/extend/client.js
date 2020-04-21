@@ -1,12 +1,12 @@
 var GreenTime = {
 
     showGreenPassView: function () {
-        console.warn('GreenTime detected a blacklisted url');
-        
+        debugger;
+        var isGreenPassAdded = document.body.classList.contains('GreenTime__Enabled');
+        if(isGreenPassAdded) return;
+
         document.body.classList.add('GreenTime__Enabled');
-
-
-
+        
         GreenTime.defineCssClassBody();
         document.body.classList.add('GreenTime__Body');
 
