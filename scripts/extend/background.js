@@ -149,14 +149,15 @@ function filterDaytime() {
 // Show green-pass.html in the tab
 function bringGreenPass(tab) {
   // Show the green-pass view
-  //browser.tabs.update(tab.id, {url: "views/green-pass.html"});
   // record targetUrl to inform green-pass later
-  greenPassViewUrl = chrome.runtime.getURL('views/green-pass.html');
+  greenPassViewUrl = browser.runtime.getURL('views/green-pass.html');
 
-  chrome.tabs.executeScript(tab.id,
-    { code: `
-      GreenTime.ShowGreenPassView();
-    ` })
+  browser.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    browser.tabs.executeScript(tabs[0].id,
+      { code: `
+        GreenTime.showGreenPassView();
+      ` })
+  })
 
   targetUrlList[tab.id] = tab.url;
 }

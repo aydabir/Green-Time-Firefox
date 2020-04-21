@@ -1,16 +1,16 @@
 var GreenTime = {
 
-    ShowGreenPassView: function () {
+    showGreenPassView: function () {
         console.warn('GreenTime detected a blacklisted url');
         
         document.body.classList.add('GreenTime__Enabled');
 
 
 
-        GreenTime.DefneCssClassBody();
+        GreenTime.defineCssClassBody();
         document.body.classList.add('GreenTime__Body');
 
-        GreenTime.DefneCssClassBodyBlur('1px');
+        GreenTime.defineCssClassBodyBlur('1px');
         document.body.classList.add('GreenTime__BodyBlur');
         
         var iframe = document.createElement('iframe');
@@ -23,15 +23,15 @@ var GreenTime = {
         document.body.prepend(iframe);
     },
 
-    DefineCssClass: function (selector,content) {
+    defineCssClass: function (selector,content) {
         var style = document.createElement('style');
         style.type = 'text/css';
         style.innerHTML = `${selector} { ${content} }`;
         document.getElementsByTagName('head')[0].appendChild(style);
     },
 
-    DefneCssClassBodyBlur : function(blurLevel){
-        GreenTime.DefineCssClass(".GreenTime__BodyBlur *:not(#GreenTimeIframe)",`
+    defineCssClassBodyBlur : function(blurLevel){
+        GreenTime.defineCssClass(".GreenTime__BodyBlur *:not(#GreenTimeIframe)",`
             -webkit-filter: blur(${blurLevel});
             -moz-filter: blur(${blurLevel});
             -ms-filter: blur(${blurLevel});
@@ -41,8 +41,8 @@ var GreenTime = {
             `
         );
     },
-    DefneCssClassBody : function(){
-        GreenTime.DefineCssClass(".GreenTime__Body",`
+    defineCssClassBody : function(){
+        GreenTime.defineCssClass(".GreenTime__Body",`
                 overflow:hidden;
             `
         );
