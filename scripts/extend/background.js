@@ -7,39 +7,39 @@ var blockList = new BlockList();
 var targetUrlList = [];
 
 // This function is called once in the start of the browser
-function initialize(){
+function initialize() {
   // default values (in case of the first run)
   blockList.setUrlList(["facebook.com"]);
-  blockList.setDaytimeList([{from:"00:00", to:"23:59"}]);
+  blockList.setDaytimeList([{ from: "00:00", to: "23:59" }]);
 
   load_options();
 }
 
 // Funcitons of background script
-function tabUpdate(tabId, changeInfo, tab){
-  console.log("onUpdated "+tab.url);
+function tabUpdate(tabId, changeInfo, tab) {
+  console.log("onUpdated " + tab.url);
   // check if the page should be filtered
   doFilter = filterTab(tab);
   // show green-pass if it does
-  if(doFilter){
+  if (doFilter) {
     bringGreenPass(tab);
   }
 }
 
 // this is called when a tab is created
-function tabCreate(tabId, changeInfo, tab){
+function tabCreate(tabId, changeInfo, tab) {
   // check if the page should be filtered
   doFilter = filterTab(tab);
   // show green-pass if it does
-  if(doFilter){
+  if (doFilter) {
     bringGreenPass(tab);
   }
 }
 
 // handle the messages coming from content scripts
-function handleMessage(request, sender, sendResponse){
+function handleMessage(request, sender, sendResponse) {
   console.log("Message received: " + request.topic);
-  if(!request.topic){
+  if (!request.topic) {
     console.log("BG message request.topic should be specified!");
   }
   // Act according to request.topic
@@ -74,18 +74,18 @@ function handleMessage(request, sender, sendResponse){
 // it is called at initialization
 function load_options() {
   // cookies of interest
-  var cookie_names = ["urlList","daytimeList"];
+  var cookie_names = ["urlList", "daytimeList"];
   // NOTE: we are using the 'chrome' way of reading the storage
-  browser.storage.local.get(cookie_names, function(items) {
+  browser.storage.local.get(cookie_names, function (items) {
     // control the undefined case
-    if(!items || items.length < 2){
+    if (!items || items.length < 2) {
       console.error("Option items are not proper.");
       return;
     }
     // in the first run they will be 'undefined'. Keep the default values then.
-    if(!Util.isEmpty(items.urlList))
+    if (!Util.isEmpty(items.urlList))
       blockList.setUrlList(items.urlList);
-    if(!Util.isEmpty(items.daytimeList))
+    if (!Util.isEmpty(items.daytimeList))
       blockList.setDaytimeList(items.daytimeList);
   });
 
@@ -99,16 +99,16 @@ function load_options() {
 // Decides if the tab should be filtered or not
 // Checks the user URL-list
 // Also controls the waiting time
-function filterTab(tab){
+function filterTab(tab) {
 
   // check undefined (new tab situation)
-  if(!tab || !tab.url){
+  if (!tab || !tab.url) {
     return false;
   }
 
   // check daytime
   // TODO: separate daytime intervals for separate url lists
-  if(!filterDaytime()) return false;
+  if (!filterDaytime()) return false;
 
   var domain = blockList.getDomain(tab.url);
 
@@ -118,7 +118,7 @@ function filterTab(tab){
 
 // returns daytime as minutes from 00:00
 // hours * 60 + minutes
-function parseDaytime(strTime){
+function parseDaytime(strTime) {
   arrTime = strTime.split(":");
   return parseInt(arrTime[0]) * 60 + parseInt(arrTime[1])
 }
@@ -127,19 +127,19 @@ function parseDaytime(strTime){
 function filterDaytime() {
   // get current time and create a string of HH:SS format
   var currentDate = new Date();
-  var currentDaytime = currentDate.getHours()*60+currentDate.getMinutes();
+  var currentDaytime = currentDate.getHours() * 60 + currentDate.getMinutes();
 
   daytimeList = blockList.getDaytimeList();
   // compare if it fits to 'any' of the interval
   //iterate all intervals in list
   len = daytimeList.length;
-  for(var i=0; i<len; i++){
+  for (var i = 0; i < len; i++) {
     // TODO: check empty/improper daytime
     var daytimeFrom = parseDaytime(daytimeList[i].from);
     var daytimeTo = parseDaytime(daytimeList[i].to);
 
     // in this interval? then filter applies
-    if (currentDaytime > daytimeFrom && currentDaytime < daytimeTo){
+    if (currentDaytime > daytimeFrom && currentDaytime < daytimeTo) {
       return true
     }
   }
@@ -147,10 +147,19 @@ function filterDaytime() {
 }
 
 // Show green-pass.html in the tab
-function bringGreenPass(tab){
+function bringGreenPass(tab) {
   // Show the green-pass view
-  browser.tabs.update(tab.id, {url: "views/green-pass.html"});
+  //browser.tabs.update(tab.id, {url: "views/green-pass.html"});
   // record targetUrl to inform green-pass later
+  greenPassViewUrl = chrome.runtime.getURL('views/green-pass.html');
+
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    chrome.tabs.executeScript(tabs[0].id,
+      { code: `
+        GreenTime.ShowGreenPassView();
+      ` })
+  })
+
   targetUrlList[tab.id] = tab.url;
 }
 
@@ -161,23 +170,23 @@ function closeTab(tabId) {
     console.log("Closed tab id is undefined!");
     return;
   }
-	// Close it
+  // Close it
   browser.tabs.remove(tabId);
 }
 
 // Sends green-pass page the url to direct. It is used when the user choses to 'visit'
-function sendGreenPassTarget(tabId){
+function sendGreenPassTarget(tabId) {
   // undefined?
   if (!tabId) {
     console.log("Green-pass tab id is undefined!");
     return;
   }
   // inform Green-pass
-  browser.tabs.sendMessage(tabId, {targetUrl: targetUrlList[tabId]});
+  browser.tabs.sendMessage(tabId, { targetUrl: targetUrlList[tabId] });
 }
 
 // updates the options with the option values coming with message
-function updateOptions(options){
+function updateOptions(options) {
   // undefined?
   if (!options) {
     console.log("Options are undefined!");
@@ -192,7 +201,7 @@ function updateOptions(options){
 
 // prints the logs coming from other scripts
 // to background console for easier debug
-function printLog(strLog){
+function printLog(strLog) {
   if (!strLog) {
     console.log("Please assign the request.log field \
     in \"console log\" messages");
@@ -209,7 +218,7 @@ var plugin = {
    * onUpdate
    * Each request pass here on load stage
    */
-  onLoad: function(context) {
+  onLoad: function (context) {
     log('onLoad event is fired : ' + context.tab.url, 'warn');
   },
 
@@ -217,7 +226,7 @@ var plugin = {
    * beforeEnter
    * Each request pass here on completed stage
    */
-  onCompleted: function(context) {
+  onCompleted: function (context) {
     log('onCompleted event is fired : ' + context.tab.url, 'warn');
   }
 
