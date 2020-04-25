@@ -22,12 +22,34 @@ var BlockList = function () {
     if(typeof(url) != "string")
       throw Error("Url has to be a string");
 
-    // TODO: strip url to the bare domain before searching
-    // return the domain if url is satisfied (search >= 0)
-    var _index = _domainList.findIndex(function(domain) {return (url.search(domain.url)>=0)});
+    // return the domain if url is satisfied 
+    var _index = _domainList.findIndex(function(domain) {
+      return checkDomain(domain.url , url);
+    });
+
     var result = {index: _index, status: parseInt(_index) !== parseInt(-1) ? true : false};
     return result;
   };
+
+  /*
+   * Helper function that checks two urls have same domain.
+   * @param inputURL: url string that user has blocked
+   * @param currentURL: url string at browser tab 
+   */
+  function checkDomain(inputURL , currentURL) {
+    console.log("Check Domain");
+    if(typeof(inputURL) != "string")
+      throw Error("Input Url has to be a string");
+
+    if(typeof(currentURL) != "string")
+      throw Error("Current Url has to be a string");
+     
+    var needleURL = inputURL.replace(/\s+/, "").replace(/www\./, "").replace(/https:\/\//, "").replace(/\//, "").toLowerCase();
+    var haystackURL = currentURL.replace(/\s+/, "").replace(/www\./, "").replace(/https:\/\//, "").replace(/\//, "").toLowerCase();
+    if (needleURL.length > haystackURL.length) { return false; }
+     var haystackSubstr = haystackURL.substring(0,needleURL.length);
+     return haystackSubstr == needleURL;
+  }
 
   //Public Variables
 
@@ -37,12 +59,14 @@ var BlockList = function () {
    * @return empty list or a list of strings
    */
   this.getUrlList = function () {
+    //console.log("Domain List : " + _domainList);
     if (Util.isEmpty(_domainList)) {
       console.warn("Empty blocked domain list");
       return [];
     } else {
       var urlList = [];
       for(const d of _domainList){
+        //console.log("Get URL List : " + d.url);
         urlList.push(d.url);
       }
       return urlList;
