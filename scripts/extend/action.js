@@ -7,6 +7,19 @@ function handleDomLoaded() {
 	browser.runtime.sendMessage({topic: "request current tab info"});
 }
 
+// this method is called when the tab info is received
+// tabinfo contains {url:string, listed:bool, domain:block-list.Domain}
+function initPage(tabinfo){
+  browser.runtime.sendMessage({topic: "console log",log:"Action received tab info"});
+
+  toggleButtonType(tabinfo.url, tabinfo.listed);
+
+  // show the remaining time if listed
+  if(tabinfo.listed)
+    showRemainingTime(tabinfo.postponeTime);
+
+}
+
 function blockPage(){
   // hide the button when pressed
   document.getElementById('blockBtn').style.display = "none";
@@ -47,15 +60,24 @@ function toggleButtonType(url, isBlocked){
   blockBtn.style.display = "block";
 }
 
+function showRemainingTime(postponeTime){
+  // only shown if actually postponed
+  if (postponeTime <= 0)
+    return;
+  // convert millis (/1000) to seconds
+  var remainingSeconds = (postponeTime - Date.now())/1000
+  // update html
+  document.getElementById("textRemainingTime").innerHTML = parseInt(remainingSeconds) + " s remaining";
+
+}
+
 // listen for the messages coming from the extension
 browser.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
-		// undefined?
-		if(request.topic == "tab info") {
-      toggleButtonType(request.infoList[0].url, request.infoList[0].listed);
-
-			browser.runtime.sendMessage({topic: "console log",log:"Action received tab info"});
-		}
+    // message topic correct?
+    if(request.topic == "tab info") {
+		  initPage(request.infoList[0]);
+    }
 });
 
 document.addEventListener('DOMContentLoaded', handleDomLoaded);

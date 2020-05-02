@@ -231,8 +231,11 @@ function sendTabInfo(tabs) {
   var infoList = [];
 
   for (tab of tabs) {
-    // NOTE: currently only block info is added
-    infoList.push({ "url": tab.url, "listed": Boolean(blockList.getDomain(tab.url)) });
+    var tab_domain = blockList.getDomain(tab.url);
+    var tabinfo = { "url": tab.url, "listed": Boolean(tab_domain), "postponeTime": -1}
+    if (tab_domain)
+      tabinfo["postponeTime"] = tab_domain.postponeTime;
+    infoList.push(tabinfo);
   }
 
   console.log("sending tab info");

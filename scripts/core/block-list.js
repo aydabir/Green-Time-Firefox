@@ -37,13 +37,12 @@ var BlockList = function () {
    * @param currentURL: url string at browser tab 
    */
   function checkDomain(inputURL , currentURL) {
-    console.log("Check Domain");
     if(typeof(inputURL) != "string")
       throw Error("Input Url has to be a string");
 
     if(typeof(currentURL) != "string")
       throw Error("Current Url has to be a string");
-     
+
     var needleURL = inputURL.replace(/\s+/, "").replace(/www\./, "").replace(/https:\/\//, "").replace(/\//, "").toLowerCase();
     var haystackURL = currentURL.replace(/\s+/, "").replace(/www\./, "").replace(/https:\/\//, "").replace(/\//, "").toLowerCase();
     if (needleURL.length > haystackURL.length) { return false; }
@@ -229,10 +228,14 @@ var Domain = function (_url, _category) {
   // NOTE: currently category is unused
   this.category = _category || 'General';
   this.isWaiting = false;
+  // if the blocking is postponed (waiting), this is the time when it will end
+  this.postponeTime = null;
 
   // starts a timer, until the timeout this domain is not blocked
   this.startWaiting = function(time){
     this.isWaiting = true;
+    // remember time to report later
+    this.postponeTime = Date.now() + time*minuteToMillisec;
     // start timer for waiting
     setTimeout(this.endWaiting, time*minuteToMillisec);
     console.log("Waiting " + time + "m on " + this.url);
