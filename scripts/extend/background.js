@@ -66,6 +66,8 @@ function handleMessage(request, sender, sendResponse) {
 
     case "unblock url":
       blockList.removeUrl(request.url);
+      // refresh the page, so the injected overlay will disappear
+      browser.tabs.reload();
       break;
 
     case "request current tab info":
