@@ -27,7 +27,7 @@ function blockPage(){
   var url = document.getElementById("textUrl").innerHTML;
   browser.runtime.sendMessage({topic: "block url", "url":url});
   // show the new button
-  this.toggleButtonType(url, true);
+  toggleButtonType(url, true);
 }
 
 function unblockPage(){
@@ -37,7 +37,7 @@ function unblockPage(){
   var url = document.getElementById("textUrl").innerHTML;
   browser.runtime.sendMessage({topic: "unblock url", "url":url});
   // show the new button
-  this.toggleButtonType(url, false);
+  toggleButtonType(url, false);
 }
 
 function toggleButtonType(url, isBlocked){
@@ -69,6 +69,10 @@ function showRemainingTime(postponeTime){
   // update html
   document.getElementById("textRemainingTime").innerHTML = parseInt(remainingSeconds) + " s remaining";
 
+  setInterval(function(){
+    remainingSeconds -= 1;
+    document.getElementById("textRemainingTime").innerHTML = parseInt(remainingSeconds) + " s remaining";
+  }, 1000);
 }
 
 // listen for the messages coming from the extension
