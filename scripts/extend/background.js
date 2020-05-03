@@ -214,6 +214,12 @@ function updateOptions(options) {
   blockList.setDaytimeList(options.daytimeList)
 
   console.log("Options are updated.");
+
+  // test and block the current page
+  // we use a callback, since query is asynch
+  browser.tabs.query({ "currentWindow": true, "active": true }, function (tabs) {
+    testAndBlock(tabs[0]);
+  });
 }
 
 // prints the logs coming from other scripts
