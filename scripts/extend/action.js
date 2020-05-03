@@ -60,18 +60,27 @@ function toggleButtonType(url, isBlocked){
   blockBtn.style.display = "block";
 }
 
-function showRemainingTime(postponeTime){
+function writeSecondsAsMinutes (seconds) {
+  var minutesStr = ""+parseInt( Math.floor(seconds/60.0))
+  var secondsStr = ""+parseInt( Math.floor(seconds%60.0))
+  // add preceding zero
+  if (secondsStr.length == 1)
+    secondsStr = "0" + secondsStr;
+  return minutesStr + ":" + secondsStr;
+}
+
+function showRemainingTime (postponeTime) {
   // only shown if actually postponed
   if (postponeTime <= 0)
     return;
   // convert millis (/1000) to seconds
   var remainingSeconds = (postponeTime - Date.now())/1000
   // update html
-  document.getElementById("textRemainingTime").innerHTML = parseInt(remainingSeconds) + " s remaining";
+  document.getElementById("textRemainingTime").innerHTML = writeSecondsAsMinutes(remainingSeconds) + " m remaining";
 
   setInterval(function(){
     remainingSeconds -= 1;
-    document.getElementById("textRemainingTime").innerHTML = parseInt(remainingSeconds) + " s remaining";
+    document.getElementById("textRemainingTime").innerHTML = writeSecondsAsMinutes(remainingSeconds) + " m remaining";
   }, 1000);
 }
 
