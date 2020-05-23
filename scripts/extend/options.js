@@ -1,4 +1,4 @@
-console.info('Options is loaded');
+console.info('Options loaded');
 
 var urlList = [];
 var daytimeList = [];
@@ -51,11 +51,9 @@ function handleDomLoaded() {
 		// control the undefined case
 		if (!items) return;
 
-		updateUrls(items.urlList);
-		updateDaytime(items.daytimeList);
+		showUrls(items.urlList);
+		showDaytime(items.daytimeList);
 
-		// update the bg options
-		browser.runtime.sendMessage({topic: "update options", options: items});
 	});
 	// log the bg console
 	browser.runtime.sendMessage({topic: "console log", log: "options loaded"});
@@ -141,7 +139,7 @@ function parseHour(strTime) {
 
 // update the urlList, inform background script
 // Returns the list of urls as str: strUrls
-function updateUrls(newUrlList) {
+function showUrls(newUrlList) {
 	if (!newUrlList) return "";
 
 	urlList = newUrlList;
@@ -157,7 +155,7 @@ function updateUrls(newUrlList) {
 
 // update the daytimeList, inform background script
 // Returns the list of daytime intervals as str
-function updateDaytime(newDaytimeList) {
+function showDaytime(newDaytimeList) {
 	console.log('loaded intervals',newDaytimeList);
 	if (!newDaytimeList) return "";
 

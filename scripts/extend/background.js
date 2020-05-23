@@ -66,6 +66,8 @@ function handleMessage(request, sender, sendResponse) {
 
     case "unblock url":
       blockList.removeUrl(request.url);
+      // refresh the page, so the injected overlay will disappear
+      browser.tabs.reload();
       break;
 
     case "request current tab info":
@@ -212,6 +214,12 @@ function updateOptions(options) {
   blockList.setDaytimeList(options.daytimeList)
 
   console.log("Options are updated.");
+
+  // test and block the current page
+  // we use a callback, since query is asynch
+  browser.tabs.query({ "currentWindow": true, "active": true }, function (tabs) {
+    testAndBlock(tabs[0]);
+  });
 }
 
 // prints the logs coming from other scripts
@@ -231,8 +239,11 @@ function sendTabInfo(tabs) {
   var infoList = [];
 
   for (tab of tabs) {
-    // NOTE: currently only block info is added
-    infoList.push({ "url": tab.url, "listed": Boolean(blockList.getDomain(tab.url)) });
+    var tab_domain = blockList.getDomain(tab.url);
+    var tabinfo = { "url": tab.url, "listed": Boolean(tab_domain), "postponeTime": -1}
+    if (tab_domain)
+      tabinfo["postponeTime"] = tab_domain.postponeTime;
+    infoList.push(tabinfo);
   }
 
   console.log("sending tab info");

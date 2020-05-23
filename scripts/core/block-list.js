@@ -37,13 +37,12 @@ var BlockList = function () {
    * @param currentURL: url string at browser tab 
    */
   function checkDomain(inputURL , currentURL) {
-    console.log("Check Domain");
     if(typeof(inputURL) != "string")
       throw Error("Input Url has to be a string");
 
     if(typeof(currentURL) != "string")
       throw Error("Current Url has to be a string");
-     
+
     var needleURL = inputURL.replace(/\s+/, "").replace(/www\./, "").replace(/https:\/\//, "").replace(/\//, "").toLowerCase();
     var haystackURL = currentURL.replace(/\s+/, "").replace(/www\./, "").replace(/https:\/\//, "").replace(/\//, "").toLowerCase();
     if (needleURL.length > haystackURL.length) { return false; }
@@ -78,12 +77,26 @@ var BlockList = function () {
    * @param newList
    */
   this.setUrlList = function (newList, category="General") {
-    // override
-    _domainList = []
-    for(const url of newList){
-      _domainList.push(new Domain(url, category));
+    // NOTE: to not lose existing domain object properties we don't override the whole list
+    // instead we will only add the new and remove the non-existing
+    // so the un-changed ones are not touched!
+    var oldList = this.getUrlList();
+    // first remove those which are not in the new list
+    for (const old_url of oldList){
+      // exists in the new list?
+      var index = newList.findIndex(function(url_new) {
+        return checkDomain(url_new , old_url);
+      });
+      // if does not exist, remove from the domains
+      if (index < 0)
+        this.removeUrl(old_url);
     }
-    this.storeCookies();
+    // then add those which are not in the old list
+    for (const new_url of newList) {
+      if (this.findDomain(new_url).status == false)
+        this.addUrl(new_url)
+    }
+    // no need to call storeCookies, as addUrl and removeUrl do it
   };
 
   this.getDaytimeList = function () {
@@ -229,10 +242,14 @@ var Domain = function (_url, _category) {
   // NOTE: currently category is unused
   this.category = _category || 'General';
   this.isWaiting = false;
+  // if the blocking is postponed (waiting), this is the time when it will end
+  this.postponeTime = null;
 
   // starts a timer, until the timeout this domain is not blocked
   this.startWaiting = function(time){
     this.isWaiting = true;
+    // remember time to report later
+    this.postponeTime = Date.now() + time*minuteToMillisec;
     // start timer for waiting
     setTimeout(this.endWaiting, time*minuteToMillisec);
     console.log("Waiting " + time + "m on " + this.url);
